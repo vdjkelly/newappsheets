@@ -88,7 +88,7 @@
 
     <!--Grid row-->
     <div class="row d-flex justify-content-center">
-        <button v-if="!isAuthenticated" @click="signin">Entrar</button>
+       
         <!-- Editable table -->
 
 
@@ -100,6 +100,8 @@
                 <div id="table" class="table-editable">
         <span class="table-add float-right mb-3 mr-2"><a href="#!" class="text-success"><i
                     class="fas fa-plus fa-2x" aria-hidden="true"></i></a></span>
+                    <button v-if="!isAuthenticated" @click="signin" class="btn btn-primary">Entrar</button>
+                    <button v-if="isAuthenticated" @click="updateSheet" class="btn btn-primary">Actualizar</button>
                     <table class="table table-bordered table-responsive-md table-striped text-center">
                         <thead>
                         <tr>
@@ -216,8 +218,35 @@
                         }, function(reason) {
                             console.error('error: ' + reason.result.error.message);
                         });
-                        })
-                }
+                    })
+                }, 
+
+                updateSheet() {
+                    let vals = new Array(100);
+                    for (let row = 0; row < 100; row++){
+                        vals[row] = new Array(4);
+                        for (let col = 0; col < 4; col++){
+                            vals[row][col] = document.getElementById(row+":"+col).value;
+                        }
+                    }
+
+                    const params = {
+                        spreadsheetId: this.ssID,
+                        range: this.rng,
+                        valueInputOption: "RAW"
+                    }
+
+                    let valueRangeBody = { "values": vals}
+                    this.$gapi.getGapiClient().then((gapi) => {
+                        var request = gapi.client.sheets.spreadsheets.values.update(params, valueRangeBody);
+                        request.then(function(response) {
+                            console.log(response.result);
+                        }, function(reason) {
+                            console.error('error: ' + reason.result.error.message);
+                        });
+                    })
+                    
+                },
             },
         });
     </script>
